@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Weekly Timetable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Neutrals with Indigo Accent -->
+    <!-- Application Structure Plan: A single-view dashboard is used to present the weekly timetable in a responsive grid, which is the most intuitive format for this type of data. The primary interaction is a 'Highlight Current Slot' button. This button uses JavaScript to identify the current day and time, then visually highlights the corresponding cell in the grid, instantly providing the user with their current academic context. This structure prioritizes immediate utility and ease of use, eliminating the need for complex navigation. -->
+    <!-- Visualization & Content Choices: Report Info: Weekly schedule markdown table -> Goal: Organize/Inform -> Viz/Presentation Method: HTML table styled with Tailwind CSS into a modern, responsive grid -> Interaction: A button triggers JavaScript to find and highlight the current time slot. Hover effects on cells provide basic visual feedback. -> Justification: The grid layout is standard and highly usable for schedules. The dynamic 'highlight' feature adds significant practical value over a static table. -> Library/Method: Vanilla JS, Tailwind CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .timetable-cell-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            min-height: 70px;
+        }
+        .subject {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #111827;
+        }
+        .location {
+            font-size: 0.8rem;
+            color: #6B7280;
+        }
+        .current-slot {
+            background-color: #FBBF24 !important; /* amber-400 */
+            color: #1F2937; /* gray-800 */
+            transition: background-color 0.3s ease-in-out;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+         .current-slot .location {
+            color: #374151; /* gray-700 */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Weekly Class Schedule</h1>
+            <p class="mt-2 text-md text-gray-600">This interactive timetable displays your weekly classes. Click the button below to instantly locate your current session based on today's date and time.</p>
+        </header>
+
+        <div class="flex justify-center mb-6">
+            <button id="highlight-now-btn" class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                <span class="align-middle">📍</span> Highlight Current Slot
+            </button>
+        </div>
+
+        <main>
+            <div class="overflow-x-auto bg-white rounded-lg shadow-lg">
+                <table class="w-full min-w-[700px] text-sm text-left">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b-2 border-gray-200">
+                        <tr>
+                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold">Time</th>
+                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Monday</th>
+                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Tuesday</th>
+                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Wednesday</th>
+                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Thursday</th>
+                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Friday</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body" class="divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+             <p id="highlight-message" class="text-center mt-4 text-gray-600 h-5 transition-opacity duration-300"></p>
+        </main>
+        
+        <footer class="text-center mt-12 text-gray-500 text-xs">
+            <p>This interactive schedule was generated to provide a dynamic and user-friendly view of your timetable.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const scheduleData = {
+                "mon": {
+                    "9": { subject: "OC-LAB", location: "" },
+                    "10": { subject: "OC-LAB", location: "" },
+                    "11": { subject: "OS", location: "L-208" },
+                    "12": { subject: "DSA", location: "L-208" },
+                    "14": { subject: "EMFT", location: "L-209" }
+                },
+                "tue": {
+                    "8": { subject: "DLD", location: "L-209" },
+                    "9": { subject: "LIC-LAB", location: "" },
+                    "10": { subject: "LIC-LAB", location: "" },
+                    "11": { subject: "LIC", location: "L-207" },
+                    "12": { subject: "DSA", location: "L-208" },
+                    "14": { subject: "AC", location: "L-209" },
+                    "15": { subject: "DSA-LAB", location: "" },
+                    "16": { subject: "DSA-LAB", location: "" }
+                },
+                "wed": {
+                    "8": { subject: "DLD", location: "L-209" },
+                    "9": { subject: "DLD-LAB", location: "" },
+                    "10": { subject: "DLD-LAB", location: "" },
+                    "11": { subject: "LIC", location: "L-207" },
+                    "12": { subject: "AC", location: "L-209" },
+                    "14": { subject: "EMFT", location: "L-209" }
+                },
+                "thu": {
+                    "8": { subject: "AC", location: "L-209" },
+                    "9": { subject: "DSA-LAB", location: "" },
+                    "10": { subject: "DSA-LAB", location: "" },
+                    "11": { subject: "LIC", location: "L-208" },
+                    "12": { subject: "OS", location: "L-208" },
+                    "14": { subject: "DLD", location: "L-209" }
+                },
+                "fri": {
+                    "9": { subject: "OS-LAB", location: "" },
+                    "10": { subject: "OS-LAB", location: "" },
+                    "11": { subject: "OS", location: "L-208" },
+                    "12": { subject: "DSA", location: "L-208" },
+                    "14": { subject: "EMFT", location: "L-209" }
+                }
+            };
+
+            const timeSlots = ["8", "9", "10", "11", "12", "13", "14", "15", "16"];
+            const days = ["mon", "tue", "wed", "thu", "fri"];
+            const displayDays = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+
+            const timetableBody = document.getElementById('timetable-body');
+
+            function formatTime(hour) {
+                const h = parseInt(hour, 10);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                let displayHour = h % 12;
+                if (displayHour === 0) displayHour = 12; 
+                return `${displayHour}:00 - ${displayHour}:55 ${ampm}`;
+            }
+
+            timeSlots.forEach(time => {
+                const row = document.createElement('tr');
+                row.className = 'bg-white';
+
+                const timeCell = document.createElement('th');
+                timeCell.scope = 'row';
+                timeCell.className = 'px-4 py-5 font-medium text-gray-900 whitespace-nowrap bg-gray-50';
+                timeCell.textContent = formatTime(time);
+                row.appendChild(timeCell);
+
+                days.forEach(day => {
+                    const cell = document.createElement('td');
+                    cell.id = `${day}-${time}`;
+                    cell.className = 'px-2 py-2 border-l border-gray-200 transition-all duration-300 hover:bg-gray-100';
+                    const session = scheduleData[day]?.[time];
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'timetable-cell-content';
+
+                    if (session) {
+                        const subjectSpan = document.createElement('span');
+                        subjectSpan.className = 'subject';
+                        subjectSpan.textContent = session.subject;
+                        contentDiv.appendChild(subjectSpan);
+
+                        if (session.location) {
+                            const locationSpan = document.createElement('span');
+                            locationSpan.className = 'location';
+                            locationSpan.textContent = session.location;
+                            contentDiv.appendChild(locationSpan);
+                        }
+                    }
+                    cell.appendChild(contentDiv);
+                    row.appendChild(cell);
+                });
+                timetableBody.appendChild(row);
+            });
+
+            const highlightButton = document.getElementById('highlight-now-btn');
+            const messageEl = document.getElementById('highlight-message');
+
+            highlightButton.addEventListener('click', () => {
+                document.querySelectorAll('tbody td.current-slot').forEach(c => c.classList.remove('current-slot'));
+                messageEl.textContent = '';
+                messageEl.style.opacity = '0';
+
+                const now = new Date();
+                const currentDayIndex = now.getDay();
+                const currentHour = now.getHours();
+                const currentDayStr = Object.keys(displayDays).find(key => displayDays[key] === currentDayIndex);
+
+                let message = "It's currently outside of scheduled hours.";
+                if (days.includes(currentDayStr) && currentHour >= 8 && currentHour <= 16) {
+                    const targetCell = document.getElementById(`${currentDayStr}-${currentHour}`);
+                    if (targetCell) {
+                        targetCell.classList.add('current-slot');
+                        const session = scheduleData[currentDayStr]?.[currentHour];
+                        if(session){
+                             message = `Your current session is: ${session.subject} in ${session.location || 'N/A'}.`;
+                        } else {
+                             message = `This is a free period. Your next class can be found on the schedule.`;
+                        }
+                    } else {
+                        message = "No specific slot for this hour. You might be between classes.";
+                    }
+                } else if(days.includes(currentDayStr)){
+                     message = "Classes for today have finished.";
+                } else {
+                     message = "It's the weekend! No classes scheduled.";
+                }
+
+                setTimeout(() => {
+                    messageEl.textContent = message;
+                    messageEl.style.opacity = '1';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
