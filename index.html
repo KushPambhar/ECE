@@ -41,44 +41,7 @@
          .current-slot .location {
             color: #374151; /* gray-700 */
         }
-        @media print {
-            body {
-                background-color: #fff !important;
-            }
-            .container, header, .flex.flex-col.sm\:flex-row.justify-center.items-center.gap-4.mb-6 {
-                margin: 0;
-                padding: 0;
-                box-shadow: none;
-                width: 100%;
-            }
-            header h1, header p {
-                color: #000 !important;
-            }
-            .flex.flex-col.sm\:flex-row.justify-center.items-center.gap-4.mb-6, #highlight-message, footer {
-                display: none !important;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            th, td {
-                border: 1px solid #ccc !important;
-                padding: 8px;
-                text-align: center;
-                color: #000 !important;
-            }
-            .bg-gray-50, .bg-gray-100 {
-                background-color: #fff !important;
-            }
-            .subject, .location {
-                color: #000 !important;
-            }
-            .current-slot {
-                background-color: #f0f0f0 !important; /* light gray for print */
-                -webkit-print-color-adjust: exact; /* For exact color printing */
-                print-color-adjust: exact;
-            }
-        }
+        
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -106,9 +69,7 @@
             <button id="highlight-now-btn" class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
                 <span class="align-middle">📍</span> On-Going Class
             </button>
-            <button id="print-btn" class="bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
-                <span class="align-middle">🖨️</span> Print Schedule
-            </button>
+            
         </div>
 
         <main>
@@ -363,7 +324,6 @@
             const timetableBody = document.getElementById('timetable-body');
             const eceSelector = document.getElementById('ece-selector');
             const highlightButton = document.getElementById('highlight-now-btn');
-            const printButton = document.getElementById('print-btn'); // New print button
             const messageEl = document.getElementById('highlight-message');
 
             let currentSchedule = allScheduleData[eceSelector.value]; // Initialize with default ECE 2
@@ -464,9 +424,7 @@
                     messageEl.style.opacity = '1';
                 }, 100);
             });
-            printButton.addEventListener('click', () => {
-                window.print();
-            });
+            
         });
     </script>
 </body>
