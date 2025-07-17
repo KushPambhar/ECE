@@ -97,43 +97,57 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const allScheduleData = {
-                "ece1": {
-                    "9": { subject: "MATH I", location: "L-101" },
-                    "10": { subject: "CHEM LAB", location: "C-LAB" },
-                    "11": { subject: "CHEM LAB", location: "C-LAB" },
-                    "12": { subject: "BEE", location: "L-201" },
-                    "14": { subject: "ENGLISH", location: "L-102" }
-                },
-                "ece2": {
-                    "8": { subject: "DLD", location: "L-209" },
+            // Define the common schedule data
+            const commonSchedule = {
+                "mon": {
                     "9": { subject: "OC-LAB", location: "" },
                     "10": { subject: "OC-LAB", location: "" },
                     "11": { subject: "OS", location: "L-208" },
                     "12": { subject: "DSA", location: "L-208" },
                     "14": { subject: "EMFT", location: "L-209" }
                 },
-                "ece3": {
-                    "9": { subject: "DSP", location: "L-301" },
-                    "10": { subject: "VLSI", location: "L-302" },
-                    "11": { subject: "COMM SYS", location: "L-303" },
-                    "12": { subject: "MICROWAVE", location: "L-304" },
-                    "14": { subject: "DSP LAB", location: "DSP-LAB" }
+                "tue": {
+                    "8": { subject: "DLD", location: "L-209" },
+                    "9": { subject: "LIC-LAB", location: "" },
+                    "10": { subject: "LIC-LAB", location: "" },
+                    "11": { subject: "LIC", location: "L-207" },
+                    "12": { subject: "DSA", location: "L-208" },
+                    "14": { subject: "AC", location: "L-209" },
+                    "15": { subject: "DSA-LAB", location: "" },
+                    "16": { subject: "DSA-LAB", location: "" }
                 },
-                "ece4": {
-                    "9": { subject: "AI", location: "L-401" },
-                    "10": { subject: "ML", location: "L-402" },
-                    "11": { subject: "IOT", location: "L-403" },
-                    "12": { subject: "CLOUD", location: "L-404" },
-                    "14": { subject: "AI LAB", location: "AI-LAB" }
+                "wed": {
+                    "8": { subject: "DLD", location: "L-209" },
+                    "9": { subject: "DLD-LAB", location: "" },
+                    "10": { subject: "DLD-LAB", location: "" },
+                    "11": { subject: "LIC", location: "L-207" },
+                    "12": { subject: "AC", location: "L-209" },
+                    "14": { subject: "EMFT", location: "L-209" }
                 },
-                "ece5": {
-                    "9": { subject: "ROBOTICS", location: "R-LAB" },
-                    "10": { subject: "CONTROL SYS", location: "L-501" },
-                    "11": { subject: "POWER ELEC", location: "L-502" },
-                    "12": { subject: "EMBEDDED", location: "L-503" },
-                    "14": { subject: "ROBOTICS LAB", location: "R-LAB" }
+                "thu": {
+                    "8": { subject: "AC", location: "L-209" },
+                    "9": { subject: "DSA-LAB", location: "" },
+                    "10": { subject: "DSA-LAB", location: "" },
+                    "11": { subject: "LIC", location: "L-208" },
+                    "12": { subject: "OS", location: "L-208" },
+                    "14": { subject: "DLD", location: "L-209" }
+                },
+                "fri": {
+                    "9": { subject: "OS-LAB", location: "" },
+                    "10": { subject: "OS-LAB", location: "" },
+                    "11": { subject: "OS", location: "L-208" },
+                    "12": { subject: "DSA", location: "L-208" },
+                    "14": { subject: "EMFT", location: "L-209" }
                 }
+            };
+
+            // Assign the common schedule to all ECE sections
+            const allScheduleData = {
+                "ece1": commonSchedule,
+                "ece2": commonSchedule,
+                "ece3": commonSchedule,
+                "ece4": commonSchedule,
+                "ece5": commonSchedule
             };
 
             const timeSlots = ["8", "9", "10", "11", "12", "13", "14", "15", "16"];
