@@ -143,11 +143,178 @@
 
             // Assign the common schedule to all ECE sections
             const allScheduleData = {
-                "ece1": commonSchedule,
+                "ece1": {
+                    "mon": {
+                        "9": { subject: "LIC-LAB", location: "" },
+                        "10": { subject: "LIC-LAB", location: "" },
+                        "11": { subject: "OS", location: "L-208" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" },
+                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Wed
+                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Wed
+                    },
+                    "tue": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "DLD-LAB", location: "" },
+                        "10": { subject: "DLD-LAB", location: "" },
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "AC", location: "L-209" }
+                    },
+                    "wed": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "DSA", location: "" },
+                        "10": { subject: "DSA", location: "" },
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "AC", location: "L-209" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                        // 15 and 16 are removed from Wednesday
+                    },
+                    "thu": {
+                        "8": { subject: "AC", location: "L-209" },
+                        "9": { subject: "OS-LAB", location: "" },
+                        "10": { subject: "OS-LAB", location: "" },
+                        "11": { subject: "LIC", location: "L-208" },
+                        "12": { subject: "OS", location: "L-208" },
+                        "14": { subject: "DLD", location: "L-209" }
+                    },
+                    "fri": {
+                        "9": { subject: "OC-LAB", location: "" },
+                        "10": { subject: "OC-LAB", location: "" },
+                        "11": { subject: "OS", location: "L-208" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    }
+                },
                 "ece2": commonSchedule,
-                "ece3": commonSchedule,
-                "ece4": commonSchedule,
-                "ece5": commonSchedule
+                "ece3": {
+                    "mon": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "OS-LAB", location: "" }, // Modified
+                        "10": { subject: "OS-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    },
+                    "tue": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "OC-LAB", location: "" }, // Modified
+                        "10": { subject: "OC-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "AC", location: "L-209" }
+                    },
+                    "wed": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "LIC-LAB", location: "" }, // Modified
+                        "10": { subject: "LIC-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "AC", location: "L-209" },
+                        "14": { subject: "EMFT", location: "L-209" },
+                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Tue
+                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Tue
+                    },
+                    "thu": {
+                        "8": { subject: "AC", location: "L-209" },
+                        "9": { subject: "DLD-LAB", location: "" }, // Modified
+                        "10": { subject: "DLD-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-208" },
+                        "12": { subject: "OS", location: "L-208" },
+                        "14": { subject: "DLD", location: "L-209" }
+                    },
+                    "fri": {
+                        "9": { subject: "DSA-LAB", location: "" }, // Modified
+                        "10": { subject: "DSA-LAB", location: "" }, // Modified
+                        "11": { subject: "OS", location: "L-208" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    }
+                },
+                "ece4": {
+                    "mon": {
+                        "9": { subject: "DSA-LAB", location: "" }, // Modified
+                        "10": { subject: "DSA-LAB", location: "" }, // Modified
+                        "11": { subject: "OS", location: "L-208" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    },
+                    "tue": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "OS-LAB", location: "" }, // Modified
+                        "10": { subject: "OS-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "AC", location: "L-209" }
+                    },
+                    "wed": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "OC-LAB", location: "" }, // Modified
+                        "10": { subject: "OC-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "AC", location: "L-209" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    },
+                    "thu": {
+                        "8": { subject: "AC", location: "L-209" },
+                        "9": { subject: "LIC-LAB", location: "" }, // Modified
+                        "10": { subject: "LIC-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-208" },
+                        "12": { subject: "OS", location: "L-208" },
+                        "14": { subject: "DLD", location: "L-209" },
+                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Tue
+                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Tue
+                    },
+                    "fri": {
+                        "9": { subject: "DLD-LAB", location: "" }, // Modified
+                        "10": { subject: "DLD-LAB", location: "" }, // Modified
+                        "11": { subject: "OS", location: "L-208" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    }
+                },
+                "ece5": {
+                    "mon": {
+                        "9": { subject: "DLD-LAB", location: "" }, // Modified
+                        "10": { subject: "DLD-LAB", location: "" }, // Modified
+                        "11": { subject: "OS", location: "L-208" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    },
+                    "tue": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "DSA-LAB", location: "" }, // Modified
+                        "10": { subject: "DSA-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "AC", location: "L-209" }
+                        // 15 and 16 are removed from Tuesday
+                    },
+                    "wed": {
+                        "8": { subject: "DLD", location: "L-209" },
+                        "9": { subject: "OS-LAB", location: "" }, // Modified
+                        "10": { subject: "OS-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-207" },
+                        "12": { subject: "AC", location: "L-209" },
+                        "14": { subject: "EMFT", location: "L-209" }
+                    },
+                    "thu": {
+                        "8": { subject: "AC", location: "L-209" },
+                        "9": { subject: "OC-LAB", location: "" }, // Modified
+                        "10": { subject: "OC-LAB", location: "" }, // Modified
+                        "11": { subject: "LIC", location: "L-208" },
+                        "12": { subject: "OS", location: "L-208" },
+                        "14": { subject: "DLD", location: "L-209" }
+                    },
+                    "fri": {
+                        "9": { subject: "LIC-LAB", location: "" }, // Modified
+                        "10": { subject: "LIC-LAB", location: "" }, // Modified
+                        "11": { subject: "OS", location: "L-208" },
+                        "12": { subject: "DSA", location: "L-208" },
+                        "14": { subject: "EMFT", location: "L-209" },
+                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Tue
+                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Tue
+                    }
+                }
             };
 
             const timeSlots = ["8", "9", "10", "11", "12", "13", "14", "15", "16"];
