@@ -50,7 +50,7 @@
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Weekly Class Schedule</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">ECE Weekly Schedule</h1>
             <p class="mt-2 text-md text-gray-600">This interactive timetable displays your weekly classes. Use the dropdown to select your ECE section and click the button to instantly locate your current session based on today's date and time.</p>
         </header>
 
@@ -66,7 +66,7 @@
                 </select>
             </div>
             <button id="highlight-now-btn" class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
-                <span class="align-middle">📍</span> Highlight Current Slot
+                <span class="align-middle">📍</span> On-Going Classes
             </button>
         </div>
 
@@ -163,8 +163,8 @@
                     },
                     "wed": {
                         "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "DSA-LAB", location: "" },
-                        "10": { subject: "DSA-LAB", location: "" },
+                        "9": { subject: "DSA", location: "" },
+                        "10": { subject: "DSA", location: "" },
                         "11": { subject: "LIC", location: "L-207" },
                         "12": { subject: "AC", location: "L-209" },
                         "14": { subject: "EMFT", location: "L-209" }
@@ -189,6 +189,7 @@
                 "ece2": commonSchedule,
                 "ece3": {
                     "mon": {
+                        "8": { subject: "DLD", location: "L-209" },
                         "9": { subject: "OS-LAB", location: "" }, // Modified
                         "10": { subject: "OS-LAB", location: "" }, // Modified
                         "11": { subject: "LIC", location: "L-207" },
@@ -286,7 +287,6 @@
                         "11": { subject: "LIC", location: "L-207" },
                         "12": { subject: "DSA", location: "L-208" },
                         "14": { subject: "AC", location: "L-209" }
-                        // 15 and 16 are removed from Tuesday
                     },
                     "wed": {
                         "8": { subject: "DLD", location: "L-209" },
