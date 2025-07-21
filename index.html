@@ -6,8 +6,8 @@
     <title>Interactive Weekly Timetable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chosen Palette: Calm Neutrals with Indigo Accent -->
-    <!-- Application Structure Plan: A single-view dashboard is used to present the weekly timetable in a responsive grid, which is the most intuitive format for this type of data. The primary interaction is a 'Highlight Current Slot' button. This button uses JavaScript to identify the current day and time, then visually highlights the corresponding cell in the grid, instantly providing the user with their current academic context. This structure prioritizes immediate utility and ease of use, eliminating the need for complex navigation. -->
-    <!-- Visualization & Content Choices: Report Info: Weekly schedule markdown table -> Goal: Organize/Inform -> Viz/Presentation Method: HTML table styled with Tailwind CSS into a modern, responsive grid. -> Interaction: A dropdown to select ECE sections, a button to highlight the current time slot. -> Justification: The grid layout is standard and highly usable for schedules. The dynamic 'highlight' feature adds significant practical value. -> Library/Method: Vanilla JS, Tailwind CSS. -->
+    <!-- Application Structure Plan: A single-view dashboard is used to present the weekly timetable in a responsive grid, which is the most intuitive format for this type of data. The primary interaction is a 'Highlight Current Slot' button. This button uses JavaScript to identify the current day and time, then visually highlights the corresponding cell in the grid, instantly providing the user with their current academic context. New dynamic displays for 'Current Class' and 'Next Class' provide real-time schedule updates. This structure prioritizes immediate utility and ease of use, eliminating the need for complex navigation while offering proactive information. -->
+    <!-- Visualization & Content Choices: Report Info: Weekly schedule markdown table -> Goal: Organize/Inform -> Viz/Presentation Method: HTML table styled with Tailwind CSS into a modern, responsive grid. New text displays for current/next class. -> Interaction: A dropdown to select ECE sections, a button to highlight the current time slot, and real-time updates for current/next class. -> Justification: The grid layout is standard and highly usable for schedules. The dynamic 'highlight' and 'current/next class' features add significant practical value. -> Library/Method: Vanilla JS, Tailwind CSS. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -41,7 +41,45 @@
          .current-slot .location {
             color: #374151; /* gray-700 */
         }
-        
+        /* Print-specific styles */
+        @media print {
+            body {
+                background-color: #fff !important;
+            }
+            .container, header, .controls-section { /* Added .controls-section */
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                width: 100%;
+            }
+            header h1, header p {
+                color: #000 !important;
+            }
+            .controls-section, #highlight-message, footer, .current-next-class-section { /* Hide new section for print */
+                display: none !important;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #ccc !important;
+                padding: 8px;
+                text-align: center;
+                color: #000 !important;
+            }
+            .bg-gray-50, .bg-gray-100 {
+                background-color: #fff !important;
+            }
+            .subject, .location {
+                color: #000 !important;
+            }
+            .current-slot {
+                background-color: #f0f0f0 !important; /* light gray for print */
+                -webkit-print-color-adjust: exact; /* For exact color printing */
+                print-color-adjust: exact;
+            }
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,7 +93,7 @@
             <p class="mt-2 text-md text-gray-600">This interactive timetable displays your weekly classes. Use the dropdown to select your ECE section and click the button to instantly locate your current session based on today's date and time.</p>
         </header>
 
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6 controls-section">
             <div class="flex items-center space-x-2">
                 <label for="ece-selector" class="font-medium text-gray-700">Select ECE Section:</label>
                 <select id="ece-selector" class="block w-40 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -69,7 +107,20 @@
             <button id="highlight-now-btn" class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
                 <span class="align-middle">📍</span> On-Going Class
             </button>
-            
+            <button id="print-btn" class="bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
+                <span class="align-middle">🖨️</span> Print Schedule
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 current-next-class-section">
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Current Class</h3>
+                <p id="current-class-info" class="text-gray-700 text-md">No class currently.</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md text-center">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Next Class</h3>
+                <p id="next-class-info" class="text-gray-700 text-md">No upcoming class.</p>
+            </div>
         </div>
 
         <main>
@@ -191,9 +242,10 @@
                 "ece2": commonSchedule,
                 "ece3": {
                     "mon": {
+                        "8": { subject: "DLD", location: "L-209" },
                         "9": { subject: "OS-LAB", location: "First Floor" }, // Modified
                         "10": { subject: "OS-LAB", location: "First Floor" }, // Modified
-                        "11": { subject: "OS", location: "L-207" },
+                        "11": { subject: "LIC", location: "L-207" },
                         "12": { subject: "DSA", location: "L-208" },
                         "14": { subject: "EMFT", location: "L-209" }
                     },
@@ -320,11 +372,17 @@
             const timeSlots = ["8", "9", "10", "11", "12", "13", "14", "15", "16"];
             const days = ["mon", "tue", "wed", "thu", "fri"];
             const displayDays = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
 
             const timetableBody = document.getElementById('timetable-body');
             const eceSelector = document.getElementById('ece-selector');
             const highlightButton = document.getElementById('highlight-now-btn');
+            const printButton = document.getElementById('print-btn'); // New print button
             const messageEl = document.getElementById('highlight-message');
+            const currentClassInfoEl = document.getElementById('current-class-info');
+            const nextClassInfoEl = document.getElementById('next-class-info');
+
 
             let currentSchedule = allScheduleData[eceSelector.value]; // Initialize with default ECE 2
 
@@ -376,13 +434,67 @@
                 });
             }
 
+            function updateCurrentAndNextClass() {
+                const now = new Date();
+                const currentDayIndex = now.getDay();
+                const currentHour = now.getHours();
+                const currentDayStr = Object.keys(displayDays).find(key => displayDays[key] === currentDayIndex);
+
+                let currentClass = "No class currently.";
+                let nextClass = "No upcoming class.";
+
+                // Reset highlight
+                document.querySelectorAll('tbody td.current-slot').forEach(c => c.classList.remove('current-slot'));
+
+                if (days.includes(currentDayStr)) {
+                    const todaySchedule = currentSchedule[currentDayStr];
+                    const currentSession = todaySchedule?.[currentHour];
+
+                    if (currentSession && currentSession.subject) {
+                        currentClass = `${currentSession.subject} (${currentSession.location || 'N/A'})`;
+                        const targetCell = document.getElementById(`${currentDayStr}-${currentHour}`);
+                        if (targetCell) {
+                            targetCell.classList.add('current-slot');
+                        }
+                    }
+
+                    // Find next class
+                    let foundNext = false;
+                    for (let i = 0; i < timeSlots.length; i++) {
+                        const slotHour = parseInt(timeSlots[i], 10);
+                        if (slotHour > currentHour) {
+                            const nextSession = todaySchedule?.[slotHour];
+                            if (nextSession && nextSession.subject) {
+                                nextClass = `${nextSession.subject} (${nextSession.location || 'N/A'}) at ${formatTime(slotHour)}`;
+                                foundNext = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!foundNext && currentHour < 16) { // Check if it's still within the day's schedule range
+                        nextClass = `No more classes today.`;
+                    } else if (currentHour >= 16) { // After 4 PM
+                        nextClass = `Classes for ${dayNames[currentDayIndex]} have finished.`;
+                    }
+                } else {
+                    currentClass = "It's the weekend! No classes.";
+                    nextClass = "Enjoy your break!";
+                }
+
+                currentClassInfoEl.textContent = currentClass;
+                nextClassInfoEl.textContent = nextClass;
+            }
+
+
             // Initial render
             renderTimetable(currentSchedule);
+            updateCurrentAndNextClass(); // Call once on load
 
             eceSelector.addEventListener('change', (event) => {
                 const selectedEce = event.target.value;
                 currentSchedule = allScheduleData[selectedEce];
                 renderTimetable(currentSchedule);
+                updateCurrentAndNextClass(); // Update current/next class for new schedule
                 // Clear highlight and message when ECE section changes
                 document.querySelectorAll('tbody td.current-slot').forEach(c => c.classList.remove('current-slot'));
                 messageEl.textContent = '';
@@ -390,42 +502,25 @@
             });
 
             highlightButton.addEventListener('click', () => {
-                document.querySelectorAll('tbody td.current-slot').forEach(c => c.classList.remove('current-slot'));
-                messageEl.textContent = '';
-                messageEl.style.opacity = '0';
-
-                const now = new Date();
-                const currentDayIndex = now.getDay();
-                const currentHour = now.getHours();
-                const currentDayStr = Object.keys(displayDays).find(key => displayDays[key] === currentDayIndex);
-
-                let message = "It's currently outside of scheduled hours.";
-                if (days.includes(currentDayStr) && currentHour >= 8 && currentHour <= 16) {
-                    const targetCell = document.getElementById(`${currentDayStr}-${currentHour}`);
-                    if (targetCell) {
-                        targetCell.classList.add('current-slot');
-                        const session = currentSchedule[currentDayStr]?.[currentHour]; // Use currentSchedule
-                        if(session && session.subject){
-                             message = `Your current session is: ${session.subject} in ${session.location || 'N/A'}.`;
-                        } else {
-                             message = `This is a free period. Your next class can be found on the schedule.`;
-                        }
-                    } else {
-                        message = "No specific slot for this hour. You might be between classes.";
-                    }
-                } else if(days.includes(currentDayStr)){
-                     message = "Classes for today have finished.";
-                } else {
-                     message = "It's the weekend! No classes scheduled.";
-                }
-
+                // This button now primarily triggers the highlight on the main table
+                // The current/next class info is updated automatically
+                updateCurrentAndNextClass();
+                messageEl.textContent = 'Timetable updated with current class highlight.';
+                messageEl.style.opacity = '1';
                 setTimeout(() => {
-                    messageEl.textContent = message;
-                    messageEl.style.opacity = '1';
-                }, 100);
+                    messageEl.style.opacity = '0';
+                }, 3000);
             });
-            
+
+            // New print functionality
+            printButton.addEventListener('click', () => {
+                window.print();
+            });
+
+            // Update current and next class every minute
+            setInterval(updateCurrentAndNextClass, 60 * 1000); // Every 60 seconds
         });
     </script>
 </body>
 </html>
+
