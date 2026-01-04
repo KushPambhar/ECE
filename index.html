@@ -1,478 +1,337 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Weekly Timetable</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chosen Palette: Calm Neutrals with Indigo Accent -->
-    <!-- Application Structure Plan: A single-view dashboard is used to present the weekly timetable in a responsive grid, which is the most intuitive format for this type of data. The primary interaction is a 'Highlight Current Slot' button. This button uses JavaScript to identify the current day and time, then visually highlights the corresponding cell in the grid, instantly providing the user with their current academic context. New dynamic displays for 'Current Class' and 'Next Class' provide real-time schedule updates. This structure prioritizes immediate utility and ease of use, eliminating the need for complex navigation while offering proactive information. -->
-    <!-- Visualization & Content Choices: Report Info: Weekly schedule markdown table -> Goal: Organize/Inform -> Viz/Presentation Method: HTML table styled with Tailwind CSS into a modern, responsive grid. New text displays for current/next class. -> Interaction: A dropdown to select ECE sections, a button to highlight the current time slot, and real-time updates for current/next class. -> Justification: The grid layout is standard and highly usable for schedules. The dynamic 'highlight' and 'current/next class' features add significant practical value. -> Library/Method: Vanilla JS, Tailwind CSS. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .timetable-cell-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            height: 100%;
-            min-height: 70px;
-        }
-        .subject {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #111827;
-        }
-        .location {
-            font-size: 0.8rem;
-            color: #6B7280;
-        }
-        .current-slot {
-            background-color: #FBBF24 !important; /* amber-400 */
-            color: #1F2937; /* gray-800 */
-            transition: background-color 0.3s ease-in-out;
-            transform: scale(1.02);
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-         .current-slot .location {
-            color: #374151; /* gray-700 */
-        }
-    </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ECE Weekly Timetable — Interactive</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{font-family:Inter,system-ui,sans-serif}
+.timetable-cell-content{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:70px}
+.subject{font-weight:600;font-size:.9rem;color:#111827}
+.location{font-size:.8rem;color:#6B7280}
+.current-slot{background:#FBBF24!important;color:#111;box-shadow:0 0 15px rgba(0,0,0,.12);transform:scale(1.02)}
+.current-slot .location{color:#374151}
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body class="bg-gray-50 text-gray-800 antialiased">
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">ECE Weekly Schedule</h1>
-            <p class="mt-2 text-md text-gray-600">This interactive timetable displays your weekly classes. Use the dropdown to select your ECE section and click the button to instantly locate your current session based on today's date and time.</p>
-        </header>
+<div class="container mx-auto p-4 sm:p-6 lg:p-8">
 
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6 controls-section">
-            <div class="flex items-center space-x-2">
-                <label for="ece-selector" class="font-medium text-gray-700">Select ECE Section:</label>
-                <select id="ece-selector" class="block w-40 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    <option value="ece1">ECE 1</option>
-                    <option value="ece2" selected>ECE 2</option>
-                    <option value="ece3">ECE 3</option>
-                    <option value="ece4">ECE 4</option>
-                    <option value="ece5">ECE 5</option>
-                </select>
-            </div>
-            <button id="highlight-now-btn" class="bg-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-transform transform hover:scale-105">
-                <span class="align-middle">📍</span> On-Going Class
-            </button>
-        </div>
+<header class="text-center mb-8">
+<h1 class="text-3xl sm:text-4xl font-bold">ECE Weekly Timetable</h1>
+<p class="mt-2 text-gray-600">
+UG — Semester IV • Section-wise Interactive Timetable
+</p>
+</header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 current-next-class-section">
-            <div class="bg-white p-4 rounded-lg shadow-md text-center">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Current Class</h3>
-                <p id="current-class-info" class="text-gray-700 text-md">No class currently.</p>
-            </div>
-            <div class="bg-white p-4 rounded-lg shadow-md text-center">
-                <h3 class="text-lg font-semibold text-gray-800 mb-2">Next Class</h3>
-                <p id="next-class-info" class="text-gray-700 text-md">No upcoming class.</p>
-            </div>
-        </div>
+<div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+  <div class="flex items-center gap-2">
+    <label class="font-medium">Select Section:</label>
+    <select id="ece-selector"
+      class="border rounded-md px-3 py-2 focus:ring-indigo-500">
+      <option value="ece1">ECE 1</option>
+      <option value="ece2" selected>ECE 2</option>
+      <option value="ece3">ECE 3</option>
+      <option value="ece4">ECE 4</option>
+      <option value="ece5">ECE 5</option>
+    </select>
+  </div>
 
-        <main>
-            <div class="overflow-x-auto bg-white rounded-lg shadow-lg">
-                <table class="w-full min-w-[700px] text-sm text-left">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-100 border-b-2 border-gray-200">
-                        <tr>
-                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold">Time</th>
-                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Monday</th>
-                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Tuesday</th>
-                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Wednesday</th>
-                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Thursday</th>
-                            <th scope="col" class="px-4 py-4 w-1/6 font-semibold text-center">Friday</th>
-                        </tr>
-                    </thead>
-                    <tbody id="timetable-body" class="divide-y divide-gray-200">
-                    </tbody>
-                </table>
-            </div>
-             <p id="highlight-message" class="text-center mt-4 text-gray-600 h-5 transition-opacity duration-300"></p>
-        </main>
-        
-        <footer class="text-center mt-12 text-gray-500 text-xs">
-            <p>Kush Pambhar</p>
-        </footer>
-    </div>
+  <button id="highlight-now-btn"
+    class="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow hover:bg-indigo-700">
+    📍 On-Going Class
+  </button>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Define the common schedule data
-            const commonSchedule = {
-                "mon": {
-                    "9": { subject: "OC-LAB", location: "First Floor" },
-                    "10": { subject: "OC-LAB", location: "First Floor" },
-                    "11": { subject: "OS", location: "L-208" },
-                    "12": { subject: "DSA", location: "L-208" },
-                    "14": { subject: "EMFT", location: "L-209" }
-                },
-                "tue": {
-                    "8": { subject: "DLD", location: "L-209" },
-                    "9": { subject: "LIC-LAB", location: "" },
-                    "10": { subject: "LIC-LAB", location: "" },
-                    "11": { subject: "LIC", location: "L-207" },
-                    "12": { subject: "DSA", location: "L-208" },
-                    "14": { subject: "AC", location: "L-209" },
-                    "15": { subject: "DSA-LAB", location: "" },
-                    "16": { subject: "DSA-LAB", location: "" }
-                },
-                "wed": {
-                    "8": { subject: "DLD", location: "L-209" },
-                    "9": { subject: "DLD-LAB", location: "" },
-                    "10": { subject: "DLD-LAB", location: "" },
-                    "11": { subject: "LIC", location: "L-207" },
-                    "12": { subject: "AC", location: "L-209" },
-                    "14": { subject: "EMFT", location: "L-209" }
-                },
-                "thu": {
-                    "8": { subject: "AC", location: "L-209" },
-                    "9": { subject: "DSA-LAB", location: "" },
-                    "10": { subject: "DSA-LAB", location: "" },
-                    "11": { subject: "LIC", location: "L-208" },
-                    "12": { subject: "OS", location: "L-208" },
-                    "14": { subject: "DLD", location: "L-209" }
-                },
-                "fri": {
-                    "9": { subject: "OS-LAB", location: "First Floor" },
-                    "10": { subject: "OS-LAB", location: "First Floor" },
-                    "11": { subject: "OS", location: "L-208" },
-                    "12": { subject: "DSA", location: "L-208" },
-                    "14": { subject: "EMFT", location: "L-209" }
-                }
-            };
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <div class="bg-white p-4 rounded-lg shadow text-center">
+    <h3 class="font-semibold mb-1">Current Class</h3>
+    <p id="current-class-info" class="text-gray-700">No class currently.</p>
+  </div>
+  <div class="bg-white p-4 rounded-lg shadow text-center">
+    <h3 class="font-semibold mb-1">Next Class</h3>
+    <p id="next-class-info" class="text-gray-700">No upcoming class.</p>
+  </div>
+</div>
 
-            // Assign the common schedule to all ECE sections
-            const allScheduleData = {
-                "ece1": {
-                    "mon": {
-                        "9": { subject: "LIC-LAB", location: "" },
-                        "10": { subject: "LIC-LAB", location: "" },
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" },
-                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Wed
-                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Wed
-                    },
-                    "tue": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "DLD-LAB", location: "" },
-                        "10": { subject: "DLD-LAB", location: "" },
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "AC", location: "L-209" }
-                    },
-                    "wed": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "DSA", location: "" },
-                        "10": { subject: "DSA", location: "" },
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "AC", location: "L-209" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                        // 15 and 16 are removed from Wednesday
-                    },
-                    "thu": {
-                        "8": { subject: "AC", location: "L-209" },
-                        "9": { subject: "OS-LAB", location: "First Floor" },
-                        "10": { subject: "OS-LAB", location: "First Floor" },
-                        "11": { subject: "LIC", location: "L-208" },
-                        "12": { subject: "OS", location: "L-208" },
-                        "14": { subject: "DLD", location: "L-209" }
-                    },
-                    "fri": {
-                        "9": { subject: "OC-LAB", location: "First Floor" },
-                        "10": { subject: "OC-LAB", location: "First Floor" },
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    }
-                },
-                "ece2": commonSchedule,
-                "ece3": {
-                    "mon": {
-                        "9": { subject: "OS-LAB", location: "First Floor" }, // Modified
-                        "10": { subject: "OS-LAB", location: "First Floor" }, // Modified
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    },
-                    "tue": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "OC-LAB", location: "First Floor" }, // Modified
-                        "10": { subject: "OC-LAB", location: "First Floor" }, // Modified
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "AC", location: "L-209" }
-                    },
-                    "wed": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "LIC-LAB", location: "" }, // Modified
-                        "10": { subject: "LIC-LAB", location: "" }, // Modified
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "AC", location: "L-209" },
-                        "14": { subject: "EMFT", location: "L-209" },
-                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Tue
-                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Tue
-                    },
-                    "thu": {
-                        "8": { subject: "AC", location: "L-209" },
-                        "9": { subject: "DLD-LAB", location: "" }, // Modified
-                        "10": { subject: "DLD-LAB", location: "" }, // Modified
-                        "11": { subject: "LIC", location: "L-208" },
-                        "12": { subject: "OS", location: "L-208" },
-                        "14": { subject: "DLD", location: "L-209" }
-                    },
-                    "fri": {
-                        "9": { subject: "DSA-LAB", location: "" }, // Modified
-                        "10": { subject: "DSA-LAB", location: "" }, // Modified
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    }
-                },
-                "ece4": {
-                    "mon": {
-                        "9": { subject: "DSA-LAB", location: "" }, // Modified
-                        "10": { subject: "DSA-LAB", location: "" }, // Modified
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    },
-                    "tue": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "OS-LAB", location: "First Floor" }, // Modified
-                        "10": { subject: "OS-LAB", location: "First Floor" }, // Modified
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "AC", location: "L-209" }
-                    },
-                    "wed": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "OC-LAB", location: "First Floor" }, // Modified
-                        "10": { subject: "OC-LAB", location: "First Floor" }, // Modified
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "AC", location: "L-209" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    },
-                    "thu": {
-                        "8": { subject: "AC", location: "L-209" },
-                        "9": { subject: "LIC-LAB", location: "" }, // Modified
-                        "10": { subject: "LIC-LAB", location: "" }, // Modified
-                        "11": { subject: "LIC", location: "L-208" },
-                        "12": { subject: "OS", location: "L-208" },
-                        "14": { subject: "DLD", location: "L-209" },
-                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Tue
-                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Tue
-                    },
-                    "fri": {
-                        "9": { subject: "DLD-LAB", location: "" }, // Modified
-                        "10": { subject: "DLD-LAB", location: "" }, // Modified
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    }
-                },
-                "ece5": {
-                    "mon": {
-                        "9": { subject: "DLD-LAB", location: "" }, // Modified
-                        "10": { subject: "DLD-LAB", location: "" }, // Modified
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    },
-                    "tue": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "DSA-LAB", location: "" }, // Modified
-                        "10": { subject: "DSA-LAB", location: "" }, // Modified
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "AC", location: "L-209" }
-                    },
-                    "wed": {
-                        "8": { subject: "DLD", location: "L-209" },
-                        "9": { subject: "OS-LAB", location: "First Floor" }, // Modified
-                        "10": { subject: "OS-LAB", location: "First Floor" }, // Modified
-                        "11": { subject: "LIC", location: "L-207" },
-                        "12": { subject: "AC", location: "L-209" },
-                        "14": { subject: "EMFT", location: "L-209" }
-                    },
-                    "thu": {
-                        "8": { subject: "AC", location: "L-209" },
-                        "9": { subject: "OC-LAB", location: "First Floor" }, // Modified
-                        "10": { subject: "OC-LAB", location: "First Floor" }, // Modified
-                        "11": { subject: "LIC", location: "L-208" },
-                        "12": { subject: "OS", location: "L-208" },
-                        "14": { subject: "DLD", location: "L-209" }
-                    },
-                    "fri": {
-                        "9": { subject: "LIC-LAB", location: "" }, // Modified
-                        "10": { subject: "LIC-LAB", location: "" }, // Modified
-                        "11": { subject: "OS", location: "L-208" },
-                        "12": { subject: "DSA", location: "L-208" },
-                        "14": { subject: "EMFT", location: "L-209" },
-                        "15": { subject: "DSA-LAB", location: "" }, // Shifted from Tue
-                        "16": { subject: "DSA-LAB", location: "" }  // Shifted from Tue
-                    }
-                }
-            };
+<div class="overflow-x-auto bg-white rounded-lg shadow">
+<table class="w-full min-w-[700px] text-sm">
+<thead class="bg-gray-100 border-b">
+<tr>
+<th class="px-4 py-3 w-1/6">Time</th>
+<th class="px-4 py-3 text-center">Monday</th>
+<th class="px-4 py-3 text-center">Tuesday</th>
+<th class="px-4 py-3 text-center">Wednesday</th>
+<th class="px-4 py-3 text-center">Thursday</th>
+<th class="px-4 py-3 text-center">Friday</th>
+</tr>
+</thead>
+<tbody id="timetable-body" class="divide-y"></tbody>
+</table>
+</div>
 
-            const timeSlots = ["8", "9", "10", "11", "12", "13", "14", "15", "16"];
-            const days = ["mon", "tue", "wed", "thu", "fri"];
-            const displayDays = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
-            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+<p id="highlight-message"
+   class="text-center mt-3 h-5 text-gray-500 transition-opacity"></p>
 
+<footer class="text-center mt-10 text-xs text-gray-500">
+Kush Pambhar
+</footer>
 
-            const timetableBody = document.getElementById('timetable-body');
-            const eceSelector = document.getElementById('ece-selector');
-            const highlightButton = document.getElementById('highlight-now-btn');
-            // const printButton = document.getElementById('print-btn'); // Removed print button
-            const messageEl = document.getElementById('highlight-message');
-            const currentClassInfoEl = document.getElementById('current-class-info');
-            const nextClassInfoEl = document.getElementById('next-class-info');
+</div>
 
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
 
-            let currentSchedule = allScheduleData[eceSelector.value]; // Initialize with default ECE 2
+// ---------- TIME SLOTS ----------
+const timeSlots=["8","9","10","11","12","13","14","15","16"];
+function formatTime(h){
+return ({
+8:"08:00 - 08:55 AM",
+9:"09:00 - 09:55 AM",
+10:"10:00 - 10:55 AM",
+11:"11:00 - 11:55 AM",
+12:"12:00 - 12:55 PM",
+13:"01:00 - 01:55 PM",
+14:"02:00 - 02:55 PM",
+15:"03:00 - 03:55 PM",
+16:"04:00 - 04:55 PM"
+})[h];
+}
 
-            function formatTime(hour) {
-                const h = parseInt(hour, 10);
-                const ampm = h >= 12 ? 'PM' : 'AM';
-                let displayHour = h % 12;
-                if (displayHour === 0) displayHour = 12; 
-                return `${displayHour}:00 - ${displayHour}:55 ${ampm}`;
-            }
+const days=["mon","tue","wed","thu","fri"];
+const dayNames=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const dayToIndex={mon:0,tue:1,wed:2,thu:3,fri:4};
+const indexToDay=["mon","tue","wed","thu","fri"];
 
-            function renderTimetable(schedule) {
-                timetableBody.innerHTML = ''; // Clear existing rows
-                timeSlots.forEach(time => {
-                    const row = document.createElement('tr');
-                    row.className = 'bg-white';
+// ---------- COMMON THEORY (ALL SECTIONS) ----------
+const common={
 
-                    const timeCell = document.createElement('th');
-                    timeCell.scope = 'row';
-                    timeCell.className = 'px-4 py-5 font-medium text-gray-900 whitespace-nowrap bg-gray-50';
-                    timeCell.textContent = formatTime(time);
-                    row.appendChild(timeCell);
+mon:{
+"9":{subject:"22EET291 — Control Systems",location:"VLTC-L208"},
+"10":{subject:"22ECT251 — Analog CMOS IC",location:"VLTC-L208"},
+"11":{subject:"22ECT253 — Digital Communication",location:"VLTC-L208"},
+"12":{subject:"22ECT255 — Microwave Engineering",location:"VLTC-L208"}
+},
 
-                    days.forEach(day => {
-                        const cell = document.createElement('td');
-                        cell.id = `${day}-${time}`;
-                        cell.className = 'px-2 py-2 border-l border-gray-200 transition-all duration-300 hover:bg-gray-100';
-                        const session = schedule[day]?.[time];
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'timetable-cell-content';
+// Tuesday theory shift (per your rule)
+tue:{
+"9":{subject:"22EET291 — Control Systems",location:"VLTC-L208"},
+// "10" intentionally empty
+"11":{subject:"22ECT253 — Digital Communication",location:"VLTC-L208"}, // shifted from 10
+"12":{subject:"22ECT255 — Microwave Engineering",location:"VLTC-L208"}, // shifted from 11
 
-                        if (session && session.subject) { // Only add content if there's a subject
-                            const subjectSpan = document.createElement('span');
-                            subjectSpan.className = 'subject';
-                            subjectSpan.textContent = session.subject;
-                            contentDiv.appendChild(subjectSpan);
+},
 
-                            if (session.location) {
-                                const locationSpan = document.createElement('span');
-                                locationSpan.className = 'location';
-                                locationSpan.textContent = session.location;
-                                contentDiv.appendChild(locationSpan);
-                            }
-                        }
-                        cell.appendChild(contentDiv);
-                        row.appendChild(cell);
-                    });
-                    timetableBody.appendChild(row);
-                });
-            }
+wed:{
+"9":{subject:"22EET291 — Control Systems",location:"VLTC-L208"},
+"10":{subject:"22ECT252 — Computer Architecture",location:"VLTC-L208"},
+"11":{subject:"22ECT251 — Analog CMOS IC",location:"VLTC-L208"},
+"12":{subject:"22ECT254 — Digital Signal Processing",location:"VLTC-L208"}
+},
 
-            function updateCurrentAndNextClass() {
-                const now = new Date();
-                const currentDayIndex = now.getDay();
-                const currentHour = now.getHours();
-                const currentDayStr = Object.keys(displayDays).find(key => displayDays[key] === currentDayIndex);
+thu:{
+"9":{subject:"22ECT252 — Computer Architecture",location:"VLTC-L208"},
+"10":{subject:"22ECT256 — Technical Documentation",location:"VLTC-L208"},
+"11":{subject:"22ECT253 — Digital Communication",location:"VLTC-L208"},
+"12":{subject:"22ECT254 — Digital Signal Processing",location:"VLTC-L208"}
+},
 
-                let currentClass = "No class currently.";
-                let nextClass = "No upcoming class.";
+fri:{
+"9":{subject:"22ECT255 — Microwave Engineering",location:"VLTC-L208"},
+"10":{subject:"22ECT252 — Computer Architecture",location:"VLTC-L208"},
+"11":{subject:"22ECT251 — Analog CMOS IC",location:"VLTC-L208"},
+"12":{subject:"22ECT254 — Digital Signal Processing",location:"VLTC-L208"}
+}
+};
 
-                // Reset highlight
-                document.querySelectorAll('tbody td.current-slot').forEach(c => c.classList.remove('current-slot'));
+// ---------- LAB RULE ENGINE ----------
 
-                if (days.includes(currentDayStr)) {
-                    const todaySchedule = currentSchedule[currentDayStr];
-                    const currentSession = todaySchedule?.[currentHour];
+// Base rotation (ECE-1)
+const baseECE1Labs={
+mon:{subject:"Analog CMOS Lab",location:"ACSL"},
+tue:{subject:"Digital Communication Lab",location:"Computing Lab"},
+wed:{subject:"Microwave Engineering Lab",location:"Antenna Lab"},
+thu:{subject:"DSP Lab",location:"Computing Lab"}
+// fri = no lab
+};
 
-                    if (currentSession && currentSession.subject) {
-                        currentClass = `${currentSession.subject} (${currentSession.location || 'N/A'})`;
-                        const targetCell = document.getElementById(`${currentDayStr}-${currentHour}`);
-                        if (targetCell) {
-                            targetCell.classList.add('current-slot');
-                        }
-                    }
+// No-lab days
+const noLabDays={
+ece1:["fri"],
+ece2:["mon"],
+ece3:["tue"],
+ece4:["wed"],
+ece5:["thu"]
+};
 
-                    // Find next class
-                    let foundNext = false;
-                    for (let i = 0; i < timeSlots.length; i++) {
-                        const slotHour = parseInt(timeSlots[i], 10);
-                        if (slotHour > currentHour) {
-                            const nextSession = todaySchedule?.[slotHour];
-                            if (nextSession && nextSession.subject) {
-                                nextClass = `${nextSession.subject} (${nextSession.location || 'N/A'}) at ${formatTime(slotHour)}`;
-                                foundNext = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (!foundNext && currentHour < 16) { // Check if it's still within the day's schedule range
-                        nextClass = `No more classes today.`;
-                    } else if (currentHour >= 16) { // After 4 PM
-                        nextClass = `Classes for ${dayNames[currentDayIndex]} have finished.`;
-                    }
-                } else {
-                    currentClass = "It's the weekend! No classes.";
-                    nextClass = "Enjoy your break!";
-                }
+// Circular shift offsets
+const sectionOffset={
+ece1:0,
+ece2:1,
+ece3:2,
+ece4:3,
+ece5:4
+};
 
-                currentClassInfoEl.textContent = currentClass;
-                nextClassInfoEl.textContent = nextClass;
-            }
+// Generate labs based on rules
+function generateSectionLabs(sectionKey){
+ const labs={};
+ const offset=sectionOffset[sectionKey];
+ const skip=noLabDays[sectionKey]||[];
 
+ for(const day of days){
 
-            // Initial render
-            renderTimetable(currentSchedule);
-            updateCurrentAndNextClass(); // Call once on load
+   if(skip.includes(day)) continue;
 
-            eceSelector.addEventListener('change', (event) => {
-                const selectedEce = event.target.value;
-                currentSchedule = allScheduleData[selectedEce];
-                renderTimetable(currentSchedule);
-                updateCurrentAndNextClass(); // Update current/next class for new schedule
-                // Clear highlight and message when ECE section changes
-                document.querySelectorAll('tbody td.current-slot').forEach(c => c.classList.remove('current-slot'));
-                messageEl.textContent = '';
-                messageEl.style.opacity = '0';
-            });
+   const idx=dayToIndex[day];
+   const baseIndex=(idx-offset+5)%5;
+   const baseDay=indexToDay[baseIndex];
+   const lab=baseECE1Labs[baseDay];
 
-            highlightButton.addEventListener('click', () => {
-                // This button now primarily triggers the highlight on the main table
-                // The current/next class info is updated automatically
-                updateCurrentAndNextClass();
-                messageEl.textContent = 'Timetable updated with current class highlight.';
-                messageEl.style.opacity = '1';
-                setTimeout(() => {
-                    messageEl.style.opacity = '0';
-                }, 3000);
-            });
+   if(!lab) continue;
 
-            // Update current and next class every minute
-            setInterval(updateCurrentAndNextClass, 60 * 1000); // Every 60 seconds
-        });
-    </script>
+   if(!labs[day]) labs[day]={};
+
+   // Same lab for full 2–4 block
+   labs[day]["14"]={subject:lab.subject,location:`${lab.location} (2 hrs)`};
+   labs[day]["15"]={subject:lab.subject,location:`${lab.location} (2 hrs)`};
+ }
+
+ return labs;
+}
+
+// ---------- THEORY-FIRST DEEP MERGE ----------
+function mergeSchedules(common, sectionLabs){
+ const result = JSON.parse(JSON.stringify(common)); // keep theory intact
+
+ for(const day in sectionLabs){
+   if(!result[day]) result[day]={};
+
+   for(const slot in sectionLabs[day]){
+     result[day][slot]=sectionLabs[day][slot]; // override only that slot
+   }
+ }
+
+ return result;
+}
+
+// ---------- DOM ----------
+const timetableBody=document.getElementById("timetable-body");
+const eceSelector=document.getElementById("ece-selector");
+const highlightButton=document.getElementById("highlight-now-btn");
+const messageEl=document.getElementById("highlight-message");
+const currentClassInfoEl=document.getElementById("current-class-info");
+const nextClassInfoEl=document.getElementById("next-class-info");
+
+// Compute initial schedule
+let currentSchedule = mergeSchedules(common, generateSectionLabs(eceSelector.value));
+
+// ---------- RENDER ----------
+function renderTimetable(schedule){
+timetableBody.innerHTML="";
+timeSlots.forEach(time=>{
+ const row=document.createElement("tr");
+
+ const timeCell=document.createElement("th");
+ timeCell.className="px-4 py-4 bg-gray-50 font-medium";
+ timeCell.textContent=formatTime(time);
+ row.appendChild(timeCell);
+
+ days.forEach(day=>{
+  const cell=document.createElement("td");
+  cell.id=`${day}-${time}`;
+  cell.className="px-2 py-2 border-l";
+
+  const wrap=document.createElement("div");
+  wrap.className="timetable-cell-content";
+
+  const s=schedule[day]?.[time];
+  if(s){
+    const sub=document.createElement("span");
+    sub.className="subject";
+    sub.textContent=s.subject;
+    wrap.appendChild(sub);
+
+    if(s.location){
+      const loc=document.createElement("span");
+      loc.className="location";
+      loc.textContent=s.location;
+      wrap.appendChild(loc);
+    }
+  }
+
+  cell.appendChild(wrap);
+  row.appendChild(cell);
+ });
+
+ timetableBody.appendChild(row);
+});
+}
+
+// ---------- CURRENT + NEXT ----------
+function updateCurrentAndNextClass(){
+const now=new Date();
+const d=now.getDay();
+const h=now.getHours();
+const dayStr=["sun","mon","tue","wed","thu","fri","sat"][d];
+
+document.querySelectorAll(".current-slot")
+ .forEach(c=>c.classList.remove("current-slot"));
+
+let cur="No class currently.";
+let nxt="No upcoming class.";
+
+if(days.includes(dayStr)){
+ const today=currentSchedule[dayStr];
+
+ if(today?.[h]){
+  cur=`${today[h].subject} (${today[h].location||"N/A"})`;
+  const cell=document.getElementById(`${dayStr}-${h}`);
+  if(cell) cell.classList.add("current-slot");
+ }
+
+ for(const t of timeSlots){
+  const H=parseInt(t,10);
+  if(H>h && today?.[H]){
+   nxt=`${today[H].subject} (${today[H].location||"N/A"}) at ${formatTime(H)}`;
+   break;
+  }
+ }
+}
+
+currentClassInfoEl.textContent=cur;
+nextClassInfoEl.textContent=nxt;
+}
+
+// ---------- INIT ----------
+renderTimetable(currentSchedule);
+updateCurrentAndNextClass();
+
+// On section change
+eceSelector.addEventListener("change",e=>{
+ const labs=generateSectionLabs(e.target.value);
+ currentSchedule=mergeSchedules(common,labs); // THEORY FIRST ✔
+ renderTimetable(currentSchedule);
+ updateCurrentAndNextClass();
+});
+
+// Button highlight
+highlightButton.addEventListener("click",()=>{
+ updateCurrentAndNextClass();
+ messageEl.textContent="Highlighted current slot";
+ messageEl.style.opacity="1";
+ setTimeout(()=>messageEl.style.opacity="0",2000);
+});
+
+setInterval(updateCurrentAndNextClass,60000);
+});
+</script>
+
 </body>
-</html>
-
